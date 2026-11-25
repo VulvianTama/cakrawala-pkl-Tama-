@@ -1,0 +1,44 @@
+info:
+  name: Verify and Accept Group
+  type: http
+  seq: 9
+  tags:
+    - groups
+
+http:
+  method: POST
+  url: "{{baseUrl}}/groups/:id/status"
+  params:
+    - name: id
+      value: "{{groupId}}"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "status": "accept"
+      }
+  auth:
+    type: bearer
+    token: "{{teacherToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Approved by Teacher/Admin after reviewing uploaded acceptance documents.
+  Transitions group from `applying` to `accept`. Unlocks attendance tracking for all members.

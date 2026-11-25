@@ -1,0 +1,35 @@
+info:
+  name: Get Group by ID
+  type: http
+  seq: 3
+  tags:
+    - groups
+
+http:
+  method: GET
+  url: "{{baseUrl}}/groups/:id"
+  params:
+    - name: id
+      value: "{{groupId}}"
+      type: path
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Fetches full details of a specific PKL group, including leader, members, supervising teacher, and office data.

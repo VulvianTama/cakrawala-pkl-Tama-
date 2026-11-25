@@ -1,0 +1,37 @@
+info:
+  name: Batch Import Students (CSV)
+  type: http
+  seq: 2
+  tags:
+    - users
+
+http:
+  method: POST
+  url: "{{baseUrl}}/students/batch"
+  headers:
+    - name: Content-Type
+      value: multipart/form-data
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value: "students-sample.csv"
+  auth:
+    type: bearer
+    token: "{{teacherToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Batch imports student accounts from a CSV file. Teacher/Admin only.

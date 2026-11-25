@@ -1,0 +1,66 @@
+info:
+  name: Login
+  type: http
+  seq: 1
+  tags:
+    - auth
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "username": "siswa01",
+        "password": "password123"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+        if (body && body.data && body.data.token) {
+          bru.setVar("token", body.data.token);
+          if (body.data.user && body.data.user.role === "student") {
+            bru.setVar("studentToken", body.data.token);
+          } else if (body.data.user && body.data.user.role === "teacher") {
+            bru.setVar("teacherToken", body.data.token);
+          }
+        }
+    - type: tests
+      code: |-
+        test("should return 200 and auth token inside data envelope", function() {
+          expect(res.getStatus()).to.equal(200);
+          expect(res.getBody().data).to.have.property("token");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Authenticates a user (Student or Teacher) and returns a session/token.
+  Returns standard envelope:
+  ```json
+  {
+    "data": {
+      "token": "...",
+      "user": {
+        "id": "...",
+        "username": "...",
+        "role": "student",
+        "has_group": false,
+        "group_id": null
+      }
+    }
+  }
+  ```

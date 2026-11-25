@@ -1,0 +1,31 @@
+info:
+  name: Get System Settings
+  type: http
+  seq: 1
+  tags:
+    - settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Fetches system configuration (such as min/max students per group `group.rules` and letter templates `letter.template`).

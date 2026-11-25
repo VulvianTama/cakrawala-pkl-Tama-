@@ -1,0 +1,45 @@
+info:
+  name: Submit Absence
+  type: http
+  seq: 2
+  tags:
+    - attendances
+
+http:
+  method: POST
+  url: "{{baseUrl}}/attendances/absence"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "status": "sick",
+        "notes": "Saya sedang demam tinggi dan dokter menyarankan untuk beristirahat selama 2 hari kedepan.",
+        "latitude": -6.917464,
+        "longitude": 107.619123,
+        "document_key": "absences/018d-surat-dokter.pdf"
+      }
+  auth:
+    type: bearer
+    token: "{{studentToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Submits an absence request (sick / permission).
+  `notes` must be greater than 30 characters. `document_key` in S3 `absences/*` is optional but encouraged.
+  Can be modified or deleted only within a strict 1-hour window.

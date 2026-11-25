@@ -1,0 +1,44 @@
+info:
+  name: Update Absence (Within 1 Hour)
+  type: http
+  seq: 3
+  tags:
+    - attendances
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/attendances/:id"
+  params:
+    - name: id
+      value: "{{attendanceId}}"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "notes": "Revisi keterangan: saya izin tidak hadir karena mengikuti seleksi beasiswa tingkat provinsi.",
+        "document_key": "absences/018d-surat-izin-revisi.pdf"
+      }
+  auth:
+    type: bearer
+    token: "{{studentToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Updates an existing absence record. Allowed strictly within 1 hour after initial submission.

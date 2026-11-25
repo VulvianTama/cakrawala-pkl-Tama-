@@ -1,0 +1,43 @@
+info:
+  name: Subscribe Web Push Notification
+  type: http
+  seq: 1
+  tags:
+    - notifications
+
+http:
+  method: POST
+  url: "{{baseUrl}}/notifications/subscribe"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "endpoint": "https://fcm.googleapis.com/fcm/send/sample-subscription-endpoint",
+        "keys": {
+          "p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QT9t044YPPW2MwNkdKAafIHzDgF5KsyQUScGKWvnxkGavNIY=",
+          "auth": "tBHItJI5svbpez7KI4CCXg=="
+        }
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Registers a browser Web Push subscription for the authenticated user to receive alerts for group invitations, approval status changes, and letter readiness.

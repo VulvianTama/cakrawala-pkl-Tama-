@@ -1,0 +1,52 @@
+info:
+  name: Submit Attendance
+  type: http
+  seq: 1
+  tags:
+    - attendances
+
+http:
+  method: POST
+  url: "{{baseUrl}}/attendances"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "status": "present",
+        "latitude": -6.917464,
+        "longitude": 107.619123,
+        "image_key": "attendances/018d-selfie.jpg"
+      }
+  auth:
+    type: bearer
+    token: "{{studentToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+        if (body && body.id) {
+          bru.setVar("attendanceId", body.id);
+        }
+    - type: tests
+      code: |-
+        test("should record presence with 201 status", function() {
+          expect(res.getStatus()).to.equal(201);
+          expect(res.getBody().status).to.equal("present");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Submits daily presence for active PKL students (01:00 to 23:59 server timezone).
+  Requires photo key in S3 (`attendances/*`), client GPS latitude/longitude, and uses backend timestamp.

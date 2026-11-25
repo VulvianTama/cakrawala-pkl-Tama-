@@ -1,0 +1,46 @@
+info:
+  name: Update Group (Leader or Admin)
+  type: http
+  seq: 4
+  tags:
+    - groups
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/groups/:id"
+  params:
+    - name: id
+      value: "{{groupId}}"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Kelompok RPL 1 - PT Cakrawala Inovasi",
+        "member_ids": [
+          "{{studentId}}"
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Updates group information. Group leader can change name anytime, but member changes (add/kick) are strictly permitted ONLY while status is `requesting`.

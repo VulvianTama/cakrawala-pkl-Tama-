@@ -1,0 +1,57 @@
+info:
+  name: List Teachers
+  type: http
+  seq: 3
+  tags:
+    - users
+
+http:
+  method: GET
+  url: "{{baseUrl}}/teachers"
+  params:
+    - name: limit
+      value: "30"
+      type: query
+    - name: id_next
+      value: ""
+      type: query
+    - name: search
+      value: ""
+      type: query
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{teacherToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.list
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Lists teacher accounts with pagination (30 items default) and keyword search. Teacher/Admin only.
+  Returns list envelope:
+  ```json
+  {
+    "list": [
+      {
+        "id": "...",
+        "username": "...",
+        "full_name": "...",
+        "nis_nip": "19800101..."
+      }
+    ],
+    "id_next": null
+  }
+  ```

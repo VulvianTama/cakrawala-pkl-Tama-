@@ -1,0 +1,35 @@
+info:
+  name: Delete Absence (Within 1 Hour or Teacher)
+  type: http
+  seq: 4
+  tags:
+    - attendances
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/attendances/:id"
+  params:
+    - name: id
+      value: "{{attendanceId}}"
+      type: path
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Deletes an absence record. Student can delete only within 1 hour. Teacher/Admin can delete anytime for administrative corrections.

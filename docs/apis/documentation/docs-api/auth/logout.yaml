@@ -1,0 +1,31 @@
+info:
+  name: Logout
+  type: http
+  seq: 3
+  tags:
+    - auth
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/logout"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Invalidates current session and revokes auth token.

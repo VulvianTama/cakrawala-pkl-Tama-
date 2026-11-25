@@ -1,0 +1,59 @@
+info:
+  name: List Groups
+  type: http
+  seq: 1
+  tags:
+    - groups
+
+http:
+  method: GET
+  url: "{{baseUrl}}/groups"
+  params:
+    - name: limit
+      value: "30"
+      type: query
+    - name: id_next
+      value: ""
+      type: query
+    - name: status
+      value: "requesting"
+      type: query
+    - name: search
+      value: ""
+      type: query
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.list
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Lists PKL groups with pagination (30 items default), status filter, and keyword search.
+  Returns list envelope:
+  ```json
+  {
+    "list": [
+      {
+        "id": "...",
+        "name": "...",
+        "status": "requesting"
+      }
+    ],
+    "id_next": "..."
+  }
+  ```

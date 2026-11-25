@@ -1,0 +1,31 @@
+info:
+  name: Get Authenticated User Profile
+  type: http
+  seq: 2
+  tags:
+    - auth
+
+http:
+  method: GET
+  url: "{{baseUrl}}/auth/me"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Retrieves profile information of the currently authenticated user including role and active group membership.

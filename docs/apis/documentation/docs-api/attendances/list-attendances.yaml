@@ -1,0 +1,65 @@
+info:
+  name: List Attendances
+  type: http
+  seq: 5
+  tags:
+    - attendances
+
+http:
+  method: GET
+  url: "{{baseUrl}}/attendances"
+  params:
+    - name: limit
+      value: "30"
+      type: query
+    - name: id_next
+      value: ""
+      type: query
+    - name: group_id
+      value: "{{groupId}}"
+      type: query
+    - name: date
+      value: "2026-11-22"
+      type: query
+    - name: status
+      value: "present"
+      type: query
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.list
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Lists attendance and absence records with pagination (30 items default), group filter, date, and status filter.
+  Returns list envelope:
+  ```json
+  {
+    "list": [
+      {
+        "id": "...",
+        "user_id": "...",
+        "date": "2026-11-22",
+        "status": "present",
+        "latitude": -6.917464,
+        "longitude": 107.619123
+      }
+    ],
+    "id_next": null
+  }
+  ```

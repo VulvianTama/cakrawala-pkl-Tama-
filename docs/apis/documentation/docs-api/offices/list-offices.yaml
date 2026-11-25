@@ -1,0 +1,60 @@
+info:
+  name: List Offices
+  type: http
+  seq: 1
+  tags:
+    - offices
+
+http:
+  method: GET
+  url: "{{baseUrl}}/offices"
+  params:
+    - name: limit
+      value: "30"
+      type: query
+    - name: id_next
+      value: ""
+      type: query
+    - name: search
+      value: ""
+      type: query
+    - name: is_verified
+      value: "true"
+      type: query
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.list
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Lists internship offices with pagination (30 items default), search, and verification status filter.
+  Returns list envelope:
+  ```json
+  {
+    "list": [
+      {
+        "id": "...",
+        "name": "...",
+        "address": "...",
+        "is_verified": true
+      }
+    ],
+    "id_next": null
+  }
+  ```

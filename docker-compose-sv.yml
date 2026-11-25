@@ -1,0 +1,62 @@
+# This file use for development and testing
+services:
+  db:
+    image: postgres:19-alpine
+    container_name: cakrawala-service-database
+    restart: unless-stopped
+    environment:
+      - "POSTGRES_USER=cakrawala-service"
+      - "POSTGRES_PASSWORD=admin1234"
+      - "POSTGRES_DB=cakrawala-service"
+    volumes:
+      - db_test_data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    networks:
+      - cakrawala-service
+
+  s3:
+    image: rustfs/rustfs:1.0.6
+    container_name: cakrawala-service-storage
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: "cakrawala-service"
+      RUSTFS_SECRET_KEY: "admin1234"
+      RUSTFS_VOLUMES: /data
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - s3_test_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    networks:
+      - cakrawala-service
+
+  s3_setup:
+    image: amazon/aws-cli:latest
+    container_name: cakrawala-service-setup-s3
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: "cakrawala-service"
+      AWS_SECRET_ACCESS_KEY: "admin1234"
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_ENDPOINT_URL: "http://s3:9000"
+    entrypoint: >
+      /bin/sh -c "
+      sleep 2;
+      aws s3api create-bucket --bucket cakrawala-storage || true;
+      aws s3api put-bucket-policy --bucket cakrawala-storage --policy '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::cakrawala-storage/*\"]}]}' || true;
+      echo 'RustFS bucket ready.';
+      exit 0;
+      "
+    networks:
+      - cakrawala-service
+
+networks:
+  cakrawala-service:
+
+volumes:
+  db_test_data:
+  s3_test_data:

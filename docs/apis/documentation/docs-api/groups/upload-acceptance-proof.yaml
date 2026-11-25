@@ -1,0 +1,44 @@
+info:
+  name: Upload Acceptance Proof Document
+  type: http
+  seq: 8
+  tags:
+    - groups
+
+http:
+  method: POST
+  url: "{{baseUrl}}/groups/:id/documents/acceptance"
+  params:
+    - name: id
+      value: "{{groupId}}"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "file_key": "acceptance/group-018d-proof.pdf"
+      }
+  auth:
+    type: bearer
+    token: "{{studentToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Uploaded by student (Group Admin) once the office grants approval.
+  Transitions group status from `requesting` to `applying`.

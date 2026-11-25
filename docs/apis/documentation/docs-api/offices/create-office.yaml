@@ -1,0 +1,54 @@
+info:
+  name: Create Office
+  type: http
+  seq: 2
+  tags:
+    - offices
+
+http:
+  method: POST
+  url: "{{baseUrl}}/offices"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "PT Cakrawala Teknologi Digital",
+        "address": "Jl. Merdeka No. 45, Bandung",
+        "field": "Software Engineering & IT",
+        "phone": "+6281234567890",
+        "email": "contact@cakrawala.id",
+        "website": "https://cakrawala.id",
+        "quota": 4
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+        if (body && body.id) {
+          bru.setVar("officeId", body.id);
+        }
+    - type: tests
+      code: |-
+        test("should return 201 and created office", function() {
+          expect(res.getStatus()).to.equal(201);
+          expect(res.getBody()).to.have.property("id");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Creates an office. If created by a student, it automatically enters the database with `is_verified: false` until a teacher verifies it.

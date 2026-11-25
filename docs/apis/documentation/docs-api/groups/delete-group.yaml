@@ -1,0 +1,35 @@
+info:
+  name: Delete or Dissolve Group
+  type: http
+  seq: 5
+  tags:
+    - groups
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/groups/:id"
+  params:
+    - name: id
+      value: "{{groupId}}"
+      type: path
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Deletes or dissolves a group. Allowed by Group Leader during `requesting` phase, or by Teacher/Admin when request is rejected ("Not Allowed").

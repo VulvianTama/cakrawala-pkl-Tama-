@@ -1,0 +1,63 @@
+info:
+  name: Create Group
+  type: http
+  seq: 2
+  tags:
+    - groups
+
+http:
+  method: POST
+  url: "{{baseUrl}}/groups"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Kelompok RPL 1 - PT Cakrawala Digital",
+        "office_id": "{{officeId}}",
+        "member_ids": [
+          "{{studentId}}"
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+        if (body && body.data && body.data.id) {
+          bru.setVar("groupId", body.data.id);
+        }
+    - type: tests
+      code: |-
+        test("should return 201 with group in data envelope", function() {
+          expect(res.getStatus()).to.equal(201);
+          expect(res.getBody().data.status).to.equal("requesting");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Creates a new PKL group initiated by a student (becomes Leader).
+  Validates member limits against `settings` table using Zod. Initial status is `requesting`.
+  Returns:
+  ```json
+  {
+    "data": {
+      "id": "...",
+      "name": "Kelompok RPL 1",
+      "status": "requesting"
+    }
+  }
+  ```

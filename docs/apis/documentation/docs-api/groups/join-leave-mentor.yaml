@@ -1,0 +1,43 @@
+info:
+  name: Join or Leave Group as Mentor Teacher
+  type: http
+  seq: 6
+  tags:
+    - groups
+
+http:
+  method: POST
+  url: "{{baseUrl}}/groups/:id/mentor"
+  params:
+    - name: id
+      value: "{{groupId}}"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "action": "join"
+      }
+  auth:
+    type: bearer
+    token: "{{teacherToken}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Assigns or unassigns the authenticated Teacher as the supervising mentor (`teacher_id`) for this PKL group. Action can be `join` or `leave`.

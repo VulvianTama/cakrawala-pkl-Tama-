@@ -1,0 +1,71 @@
+# This file use for production template
+services:
+  app:
+    image: ghcr.io/ernestoyoofi/cakrawala-pkl:latest
+    container_name: cakrawala-app
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      - cakrawala-prod
+
+  db:
+    image: postgres:19-alpine
+    container_name: cakrawala-database
+    restart: unless-stopped
+    environment:
+      - "POSTGRES_USER=YAYAYAJUSTCHANGETHIS"
+      - "POSTGRES_PASSWORD=PLEASECHANGETHISPASSOWRD"
+      - "POSTGRES_DB=cakrawala"
+    volumes:
+      - db_data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    networks:
+      - cakrawala-prod
+
+  s3:
+    image: rustfs/rustfs:1.0.6
+    container_name: cakrawala-storage
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: "YAYAYAJUSTCHANGETHIS"
+      RUSTFS_SECRET_KEY: "PLEASECHANGETHISPASSOWRD"
+      RUSTFS_VOLUMES: /data
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - s3_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    networks:
+      - cakrawala-prod
+
+  s3_setup:
+    image: amazon/aws-cli:latest
+    container_name: cakrawala-setup-s3
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: "YAYAYAJUSTCHANGETHIS"
+      AWS_SECRET_ACCESS_KEY: "PLEASECHANGETHISPASSOWRD"
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_ENDPOINT_URL: "http://s3:9000"
+    entrypoint: >
+      /bin/sh -c "
+      sleep 2;
+      aws s3api create-bucket --bucket cakrawala-storage || true;
+      aws s3api put-bucket-policy --bucket cakrawala-storage --policy '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::cakrawala-storage/*\"]}]}' || true;
+      echo 'RustFS bucket ready.';
+      exit 0;
+      "
+    networks:
+      - cakrawala-prod
+
+networks:
+  cakrawala-prod:
+
+volumes:
+  db_data:
+  s3_data:
